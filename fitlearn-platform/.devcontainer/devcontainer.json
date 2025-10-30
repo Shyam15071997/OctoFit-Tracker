@@ -1,0 +1,20 @@
+{
+  "name": "Fitlearn Platform",
+  "dockerFile": "Dockerfile",
+  "context": "..",
+  "appPort": [
+    "8000",
+    "3000"
+  ],
+  "settings": {
+    "terminal.integrated.shell.linux": "/bin/bash"
+  },
+  "extensions": [
+    "ms-python.python",
+    "esbenp.prettier-vscode",
+    "dbaeumer.vscode-eslint",
+    "ms-azuretools.vscode-docker"
+  ],
+  "postCreateCommand": "pip install -r backend/requirements.txt && npm install --prefix frontend",
+  "remoteUser": "vscode"
+}

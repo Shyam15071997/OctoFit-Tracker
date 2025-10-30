@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fitlearn-frontend
+  labels:
+    app: fitlearn
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: fitlearn
+      tier: frontend
+  template:
+    metadata:
+      labels:
+        app: fitlearn
+        tier: frontend
+    spec:
+      containers:
+        - name: frontend
+          image: fitlearn-frontend:latest
+          ports:
+            - containerPort: 3000
+          env:
+            - name: REACT_APP_API_URL
+              value: "http://backend-service:8000/api" 
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-service
+spec:
+  type: ClusterIP
+  selector:
+    app: fitlearn
+    tier: frontend
+  ports:
+    - port: 80
+      targetPort: 3000

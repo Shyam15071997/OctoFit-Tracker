@@ -1,0 +1,44 @@
+from django.urls import reverse
+from rest_framework import status
+from rest_framework.test import APITestCase
+from .models import User
+
+class UserTests(APITestCase):
+
+    def setUp(self):
+        self.user_data = {
+            'username': 'testuser',
+            'password': 'testpassword',
+            'email': 'testuser@example.com'
+        }
+        self.user = User.objects.create_user(**self.user_data)
+
+    def test_user_registration(self):
+        response = self.client.post(reverse('user-register'), {
+            'username': 'newuser',
+            'password': 'newpassword',
+            'email': 'newuser@example.com'
+        })
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(User.objects.count(), 2)
+
+    def test_user_login(self):
+        response = self.client.post(reverse('user-login'), {
+            'username': self.user_data['username'],
+            'password': self.user_data['password']
+        })
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('token', response.data)
+
+    def test_user_login_invalid_credentials(self):
+        response = self.client.post(reverse('user-login'), {
+            'username': 'wronguser',
+            'password': 'wrongpassword'
+        })
+        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+
+    def test_user_profile_retrieval(self):
+        self.client.login(username=self.user_data['username'], password=self.user_data['password'])
+        response = self.client.get(reverse('user-profile', kwargs={'pk': self.user.id}))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['username'], self.user_data['username'])
